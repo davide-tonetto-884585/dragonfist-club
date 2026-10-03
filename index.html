@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="it">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>DragonFist Club APS · Giochi da tavolo a Scorzè</title>
+  <meta name="description" content="DragonFist Club APS: associazione ludica di Scorzè (VE). Organizziamo serate di giochi da tavolo, giochi di ruolo e Magic: The Gathering a Villa Orsini. Aperte a tutti!">
+  <meta property="og:title" content="DragonFist Club APS">
+  <meta property="og:description" content="Serate di giochi da tavolo, di ruolo e di carte a Scorzè (VE). Gioca con noi!">
+  <meta property="og:image" content="assets/img/logo.jpg">
+  <meta name="theme-color" content="#120c0e">
+  <link rel="icon" href="assets/img/favicon.svg" type="image/svg+xml">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css?v=1">
+</head>
+<body>
+  <div class="embers" aria-hidden="true"></div>
+
+  <!-- Dice tower: muri, definizioni grafiche e il d20 che cade con lo scroll -->
+  <div class="tower-wall tower-wall--l" aria-hidden="true"></div>
+  <div class="tower-wall tower-wall--r" aria-hidden="true"></div>
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true">
+    <defs>
+      <linearGradient id="plank" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#7a4426"/>
+        <stop offset="1" stop-color="#3a1d10"/>
+      </linearGradient>
+    </defs>
+  </svg>
+
+  <div class="die20" aria-hidden="true">
+    <div class="die20__shadow"></div>
+    <div class="die20__squash">
+      <svg class="die20__body" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <g stroke="#fae003" stroke-width="1.6" stroke-linejoin="round">
+          <polygon points="50,2 8,26 50,24" fill="#d22d36"/>
+          <polygon points="50,2 92,26 50,24" fill="#b8222a"/>
+          <polygon points="8,26 24,68 50,24" fill="#c2262e"/>
+          <polygon points="92,26 50,24 76,68" fill="#9c1b22"/>
+          <polygon points="8,26 8,74 24,68" fill="#a81f26"/>
+          <polygon points="92,26 92,74 76,68" fill="#7e151b"/>
+          <polygon points="8,74 50,98 24,68" fill="#8e1a20"/>
+          <polygon points="92,74 50,98 76,68" fill="#6a1116"/>
+          <polygon points="24,68 50,98 76,68" fill="#7a141a"/>
+          <polygon points="50,24 24,68 76,68" fill="#e23a42"/>
+        </g>
+        <polygon points="50,24 37,46 43,46" fill="#fff" opacity="0.18"/>
+        <text class="die20__num" x="50" y="57" text-anchor="middle" dominant-baseline="middle">20</text>
+      </svg>
+    </div>
+  </div>
+
+  <header class="nav" id="top">
+    <a class="nav__brand" href="#top">
+      <img src="assets/img/logo.jpg" alt="" width="40" height="40">
+      <span>DragonFist <em>Club</em></span>
+    </a>
+    <button class="nav__toggle" aria-label="Apri menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <nav class="nav__links">
+      <a href="#associazione">L’associazione</a>
+      <a href="#calendario">Prossimi eventi</a>
+      <a href="#eventi">Eventi fatti</a>
+      <a href="#contatti">Contatti</a>
+      <a class="btn btn--small" href="https://chat.whatsapp.com/KNVJ56EsfvCIpdMg19fBOC" target="_blank" rel="noopener">Unisciti</a>
+    </nav>
+  </header>
+
+  <main>
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__dice" aria-hidden="true">
+        <span class="die die--1">⚀</span><span class="die die--2">⚄</span><span class="die die--3">⚂</span>
+      </div>
+      <div class="hero__inner">
+        <div class="hero__logo reveal">
+          <img src="assets/img/logo.jpg" alt="Logo DragonFist Club" width="150" height="150">
+        </div>
+        <p class="eyebrow reveal">Associazione ludica · APS · Scorzè (VE)</p>
+        <h1 class="reveal">Tira i dadi.<br><span class="gold">Libera il drago.</span></h1>
+        <p class="hero__lead reveal">Serate di giochi da tavolo, giochi di ruolo e Magic: The Gathering a Scorzè.
+          Che tu sia un veterano o semplicemente curioso, <strong>c’è sempre posto al tavolo.</strong></p>
+        <div class="hero__cta reveal">
+          <a class="btn" href="#calendario">📅 Prossimi eventi</a>
+          <a class="btn btn--ghost" href="#associazione">Scopri il club</a>
+        </div>
+        <p class="hero__hint reveal">🎲 Scorri e lancia il d20</p>
+      </div>
+      <a class="hero__scroll" href="#associazione" aria-label="Scorri giù"><span></span></a>
+    </section>
+
+    <div class="baffle" data-dir="ltr" aria-hidden="true">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
+        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- ASSOCIAZIONE -->
+    <section class="section" id="associazione">
+      <div class="container split">
+        <div class="split__text reveal">
+          <p class="eyebrow">L’associazione</p>
+          <h2>Un gruppo di amici,<br>tanti dadi, <span class="gold">nessun limite</span></h2>
+          <p>Il <strong>DragonFist Club APS</strong> è un’associazione di promozione sociale nata da un gruppo di amici
+            appassionati del mondo dei giochi da tavolo e di ruolo. Il nostro obiettivo? Farti vivere avventure e
+            conoscere nuovi amici a suon di dadi e carte magiche. 🐲👊</p>
+          <p><strong>Organizziamo serate di giochi a Scorzè</strong>, a Villa Orsini: giochi da tavolo, party game,
+            collaborativi, giochi di carte, giochi di ruolo e Magic. Non serve portare nulla, le regole le spieghiamo
+            al tavolo. Porta i tuoi amici… oppure trovane di nuovi direttamente da noi!</p>
+          <p>Oltre alle serate portiamo i nostri giochi in biblioteche, fiere e festival e collaboriamo con altre
+            realtà del territorio per far crescere la community ludica veneta.</p>
+
+          <div class="info-grid">
+            <div class="info">
+              <span class="info__label">Quando</span>
+              <span class="info__value">Giovedì sera</span>
+              <span class="info__sub">Le date sono nel calendario qui sotto</span>
+            </div>
+            <div class="info">
+              <span class="info__label">Orario</span>
+              <span class="info__value">20:30 – 23:30</span>
+              <span class="info__sub">Puoi arrivare quando vuoi</span>
+            </div>
+            <div class="info">
+              <span class="info__label">Dove</span>
+              <span class="info__value">Villa Orsini</span>
+              <span class="info__sub">Via Roma 53, Scorzè (VE)</span>
+            </div>
+            <div class="info">
+              <span class="info__label">Per chi</span>
+              <span class="info__value">Per tutti</span>
+              <span class="info__sub">Veterani e curiosi</span>
+            </div>
+          </div>
+
+          <ul class="pills">
+            <li>♟️ Strategia</li>
+            <li>🎉 Party game</li>
+            <li>🛡️ Collaborativi</li>
+            <li>🐉 Giochi di ruolo</li>
+            <li>🃏 Magic: The Gathering</li>
+            <li>🧪 Prototipi in anteprima</li>
+          </ul>
+        </div>
+        <div class="split__media reveal">
+          <figure class="polaroid polaroid--tilt-r">
+            <img src="assets/img/membri.jpg" alt="Alcuni membri del DragonFist Club a fine serata, uno con una corona" loading="lazy">
+            <figcaption>Il re della serata 👑</figcaption>
+          </figure>
+          <figure class="polaroid polaroid--tilt-l polaroid--small">
+            <img src="assets/img/feudalia.jpg" alt="Tavolo di giochi del DragonFist Club al Castello di Zumelle" loading="lazy">
+            <figcaption>La nostra ludoteca</figcaption>
+          </figure>
+        </div>
+      </div>
+    </section>
+
+    <div class="baffle" data-dir="rtl" aria-hidden="true">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
+        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- PROSSIMI EVENTI (Google Calendar) -->
+    <section class="section section--dark" id="calendario">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">Calendario</p>
+          <h2>Prossimi <span class="gold">eventi</span></h2>
+          <p>Serate, tornei e fiere: segna le date e aggiungi il nostro calendario al tuo telefono.</p>
+        </div>
+        <div class="calendar reveal" id="calendar">
+          <p class="calendar__status">Caricamento eventi…</p>
+        </div>
+        <div class="calendar__actions reveal">
+          <a class="btn" id="cal-subscribe" href="#" target="_blank" rel="noopener" hidden>➕ Aggiungi a Google Calendar</a>
+          <a class="btn btn--ghost" id="cal-full" href="#" target="_blank" rel="noopener" hidden>Vedi calendario completo</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="baffle" data-dir="ltr" aria-hidden="true">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
+        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- EVENTI FATTI -->
+    <section class="section" id="eventi">
+      <div class="container">
+        <div class="section__head reveal">
+          <p class="eyebrow">In giro col drago</p>
+          <h2>Eventi <span class="gold">fatti</span></h2>
+          <p>Non solo serate a Scorzè: portiamo i nostri tavoli ovunque ci sia voglia di giocare.</p>
+        </div>
+
+        <div class="story">
+          <article class="story__item reveal">
+            <button class="story__photo" data-full="assets/img/barchfest.jpg">
+              <img src="assets/img/barchfest.jpg" alt="Lo stand del DragonFist Club al Barch Fest" loading="lazy">
+            </button>
+            <div class="story__text">
+              <time>Aprile 2026</time>
+              <h3>Barch Fest</h3>
+              <p>Una giornata intera di giochi da tavolo, GDR e Magic insieme agli amici di Mana Cafe e Antro delle Chimere.
+                Grazie a tutti quelli che sono passati a trovarci!</p>
+            </div>
+          </article>
+
+          <article class="story__item reveal">
+            <button class="story__photo story__photo--poster" data-full="assets/img/thisgameisshit.jpg">
+              <img src="assets/img/thisgameisshit.jpg" alt="Locandina della serata con This Game Is Shit" loading="lazy">
+            </button>
+            <div class="story__text">
+              <time>18 Dicembre 2025 · Villa Orsini</time>
+              <h3>Serata speciale “This Game Is Shit”</h3>
+              <p>Ultimo appuntamento del 2025 con l’autore Gianmarco Agostini: il suo party game a colpi di… attacchi
+                intestinali, più qualche prototipo da provare in anteprima.</p>
+            </div>
+          </article>
+
+          <article class="story__item reveal">
+            <button class="story__photo" data-full="assets/img/feudalia.jpg">
+              <img src="assets/img/feudalia.jpg" alt="Giochi da tavolo esposti al Castello di Zumelle" loading="lazy">
+            </button>
+            <div class="story__text">
+              <time>Maggio 2025 · Castello di Zumelle</time>
+              <h3>Feudalia Festival</h3>
+              <p>Su invito di Antro delle Chimere e in compagnia di STEM RPG, abbiamo portato i nostri giochi tra le mura
+                di un vero castello. Ci vediamo l’anno prossimo!</p>
+            </div>
+          </article>
+
+          <article class="story__item reveal">
+            <button class="story__photo story__photo--poster" data-full="assets/img/sharpie-cube.jpg">
+              <img src="assets/img/sharpie-cube.jpg" alt="Locandina della serata Sharpie Cube di Magic" loading="lazy">
+            </button>
+            <div class="story__text">
+              <time>17 Aprile 2025 · Villa Orsini</time>
+              <h3>Sharpie Cube</h3>
+              <p>Serata Magic: The Gathering con il nostro cube di carte disegnate a mano, in collaborazione con Venezia Comics.</p>
+            </div>
+          </article>
+        </div>
+
+        <div class="more-events reveal">
+          <p>E ancora…</p>
+          <ul>
+            <li>📚 Biblioteca di Jesolo & Parco Pegaso <span>Set 2026</span></li>
+            <li>🏰 Treviso Con <span>Set 2026</span></li>
+            <li>🥕 Caccia agli Ortaggi con AVIS Scorzè <span>Mar 2025</span></li>
+          </ul>
+          <a class="btn btn--ghost" href="https://www.instagram.com/dragonfist.club/" target="_blank" rel="noopener">Altre foto su @dragonfist.club</a>
+        </div>
+      </div>
+    </section>
+
+    <div class="baffle" data-dir="rtl" aria-hidden="true">
+      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
+        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
+        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
+        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
+      </svg>
+    </div>
+
+    <!-- CONTATTI -->
+    <section class="section section--cta" id="contatti">
+      <div class="container cta reveal">
+        <p class="eyebrow">Contatti</p>
+        <h2>Pronto a <span class="gold">entrare nel club</span>?</h2>
+        <p>Entra nella community WhatsApp per ricevere le date delle serate, oppure scrivici per diventare socio.</p>
+        <div class="hero__cta">
+          <a class="btn" href="https://chat.whatsapp.com/KNVJ56EsfvCIpdMg19fBOC" target="_blank" rel="noopener">💬 Community WhatsApp</a>
+          <a class="btn btn--ghost" href="mailto:dragonfistclub@gmail.com">✉️ dragonfistclub@gmail.com</a>
+        </div>
+        <address>
+          📍 <strong>Villa Orsini</strong> · Via Roma 53 · 30037 Scorzè (VE) —
+          <a href="https://www.google.com/maps/search/?api=1&query=Villa+Orsini+Via+Roma+53+Scorz%C3%A8" target="_blank" rel="noopener">apri in Maps</a>
+        </address>
+        <p class="cta__docs">
+          <a href="https://tinyurl.com/DragonfistClubAPS" target="_blank" rel="noopener">Statuto dell’associazione</a> ·
+          <a href="https://drive.google.com/file/d/1Oxg017Nox1qQp-j1DneCzW94rThPCPan/view?usp=sharing" target="_blank" rel="noopener">Informativa privacy</a> ·
+          <a href="https://dragonfist-club-pwa.vercel.app/" target="_blank" rel="noopener">App del Drago (area soci)</a>
+        </p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="tray" aria-hidden="true">
+      <div class="tray__felt">
+        <p class="tray__msg">20 naturale! Ci vediamo al tavolo 🐉</p>
+      </div>
+    </div>
+    <div class="container footer__inner">
+      <div class="footer__brand">
+        <img src="assets/img/logo.jpg" alt="" width="56" height="56">
+        <div>
+          <strong>DragonFist Club APS</strong>
+          <span>Associazione ludica · Scorzè (VE)</span>
+        </div>
+      </div>
+      <div class="footer__social">
+        <a href="https://www.instagram.com/dragonfist.club/" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+        </a>
+        <a href="https://chat.whatsapp.com/KNVJ56EsfvCIpdMg19fBOC" target="_blank" rel="noopener" aria-label="WhatsApp">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M12 2a10 10 0 0 0-8.6 15.1L2 22l5-1.3A10 10 0 1 0 12 2zm0 18.2c-1.5 0-3-.4-4.3-1.2l-.3-.2-3 .8.8-2.9-.2-.3A8.2 8.2 0 1 1 12 20.2zm4.5-6.1c-.2-.1-1.5-.7-1.7-.8-.2-.1-.4-.1-.6.1l-.8 1c-.1.2-.3.2-.5.1a6.7 6.7 0 0 1-3.3-2.9c-.3-.4.3-.4.7-1.4.1-.2 0-.3 0-.4l-.8-1.8c-.2-.5-.4-.4-.6-.4h-.5c-.2 0-.4.1-.6.3-.2.2-.8.8-.8 2s.8 2.3 1 2.5c.1.2 1.6 2.5 4 3.5 1.5.6 2 .7 2.8.6.4-.1 1.5-.6 1.7-1.2.2-.6.2-1.1.1-1.2l-.4-.2z"/></svg>
+        </a>
+        <a href="mailto:dragonfistclub@gmail.com" aria-label="Email">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        </a>
+      </div>
+      <p class="footer__copy">© <span id="year"></span> DragonFist Club APS · Gioca con noi! 🐉</p>
+    </div>
+  </footer>
+
+  <div class="lightbox" hidden>
+    <button class="lightbox__close" aria-label="Chiudi">×</button>
+    <img alt="">
+  </div>
+
+  <script src="assets/js/config.js?v=1"></script>
+  <script src="assets/js/main.js?v=1"></script>
+</body>
+</html>
