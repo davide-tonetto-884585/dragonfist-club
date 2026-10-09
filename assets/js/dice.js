@@ -1,9 +1,8 @@
 // ---------------------------------------------------------------------------
 // Dice thrower: dadi 3D che cadono per gravità e rimbalzano sugli elementi del sito.
 //
-// - Vivono nel riquadro dello schermo: scrollando, titoli, schede, foto e rampe si
-//   muovono e li colpiscono (le foto no).
-//   Sugli elementi larghi scivolano verso i bordi. In fondo un imbuto li porta nel vassoio.
+// - Vivono nel riquadro dello schermo: scrollando, titoli, schede, rampe e la barra
+//   dei dadi li colpiscono (le foto no). In fondo un imbuto li porta nel vassoio.
 // - Si possono aggiungere/togliere d4, d6, d8, d10, d12, d20 (pannello in basso a sinistra).
 // - Quando tutti si fermano, mostra i singoli valori e la somma.
 // - Da telefono la gravità segue il giroscopio; scuotendo il telefono si lanciano.
@@ -249,7 +248,6 @@
   const B = { left: 0, right: 0, top: 0, bottom: 0 };
   const G = { x: 0, y: 1 }; // gravità in "g", assi dello schermo (y verso il basso)
   const GPX = 2400; // px/s² per 1 g
-  const SLIDE = 1400; // px/s² verso il bordo sugli elementi larghi
   let sensorsOn = false;
   let dirty = true;
   let rolling = false; // c'è un tiro in corso da sommare
@@ -259,7 +257,7 @@
   const resize = () => {
     W = innerWidth;
     H = innerHeight;
-    BASE = W < 560 ? 20 : 26;
+    BASE = W < 560 ? 24 : 27;
     renderer.setSize(W, H, false);
     camera.left = -W / 2;
     camera.right = W / 2;
@@ -368,13 +366,12 @@
   let obstacles = [];
   const readObstacles = () => {
     obstacles = [];
-    const span = B.right - B.left;
     for (const el of solids) {
       if (el.hidden) continue;
       const r = rectOf(el);
       if (!r.width || r.bottom < -80 || r.top > H + 80) continue;
-      // fixed = non si muove con lo scroll; wide = fa scivolare il dado verso i bordi
-      obstacles.push({ el, r, fixed: hud.contains(el), wide: r.width > span * 0.55 });
+      // fixed = non si muove con lo scroll (la barra dei dadi)
+      obstacles.push({ el, r, fixed: hud.contains(el) });
     }
     for (const el of baffles) {
       const r = el.getBoundingClientRect();
@@ -463,20 +460,7 @@
     // Centro dentro l'elemento (all'avvio, dopo un salto di scroll o se schiacciato contro un bordo):
     // lo attraversa invece di restarci incastrato
     if (dist >= d.R || dist <= 1e-6) return;
-    const nx = dx / dist;
-    const ny = dy / dist;
-    // Appoggiato sopra un elemento largo: scivola verso il bordo più vicino…
-    let slide = 0;
-    if (o.wide && ny < -0.7) {
-      const mid = (r.left + r.right) / 2;
-      slide = d.x === mid ? (Math.random() < 0.5 ? -1 : 1) : Math.sign(d.x - mid);
-      // …e se da quel lato non c'è spazio per cadere (l'elemento arriva al muro), alla fine ci passa attraverso
-      const gap = slide < 0 ? r.left - B.left : B.right - r.right;
-      const edge = slide < 0 ? r.left : r.right;
-      if (gap < d.R * 2 + 4 && Math.abs(d.x - edge) < d.R * 1.6) return;
-    }
-    resolve(d, nx, ny, d.R - dist, o.el, 0, ovy, dt);
-    if (slide) d.vx += slide * SLIDE * dt;
+    resolve(d, dx / dist, dy / dist, d.R - dist, o.el, 0, ovy, dt);
   };
 
   const collideSeg = (d, o, ovy, dt) => {

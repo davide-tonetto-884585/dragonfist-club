@@ -29,9 +29,8 @@ assets/img/           logo, foto e locandine (da Instagram @dragonfist.club)
 ## I dadi (dice thrower)
 
 Dadi 3D (three.js, `assets/js/dice.js`) che cadono per gravità e rimbalzano sugli
-elementi del sito: scorrendo, titoli, schede, foto e rampe di legno li colpiscono.
-Sugli elementi molto larghi scivolano verso i bordi (e se non c'è spazio ci passano
-attraverso), così non restano incastrati.
+elementi del sito: scorrendo, titoli, schede, rampe di legno e la barra dei dadi
+li colpiscono (le foto no). In fondo alla pagina un imbuto li porta nel vassoio.
 
 - Dal pannello in basso a sinistra (clic sull'etichetta tipo "d20 + 2d6") si aggiungono
   e tolgono d4, d6, d8, d10, d12, d20 (max 10). La scelta resta salvata nel browser.
