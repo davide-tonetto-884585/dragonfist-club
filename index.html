@@ -13,12 +13,12 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=3">
+  <link rel="stylesheet" href="assets/css/style.css?v=5">
 </head>
 <body>
   <div class="embers" aria-hidden="true"></div>
 
-  <!-- Dice tower: muri, definizioni grafiche e il d20 che cade con lo scroll -->
+  <!-- Muri laterali e legno delle rampe (sono anche ostacoli per il dado) -->
   <div class="tower-wall tower-wall--l" aria-hidden="true"></div>
   <div class="tower-wall tower-wall--r" aria-hidden="true"></div>
   <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -30,25 +30,54 @@
     </defs>
   </svg>
 
-  <div class="die20" aria-hidden="true">
-    <div class="die20__shadow"></div>
-    <div class="die20__squash">
-      <svg class="die20__body" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-        <g stroke="#fae003" stroke-width="1.6" stroke-linejoin="round">
-          <polygon points="50,2 8,26 50,24" fill="#d22d36"/>
-          <polygon points="50,2 92,26 50,24" fill="#b8222a"/>
-          <polygon points="8,26 24,68 50,24" fill="#c2262e"/>
-          <polygon points="92,26 50,24 76,68" fill="#9c1b22"/>
-          <polygon points="8,26 8,74 24,68" fill="#a81f26"/>
-          <polygon points="92,26 92,74 76,68" fill="#7e151b"/>
-          <polygon points="8,74 50,98 24,68" fill="#8e1a20"/>
-          <polygon points="92,74 50,98 76,68" fill="#6a1116"/>
-          <polygon points="24,68 50,98 76,68" fill="#7a141a"/>
-          <polygon points="50,24 24,68 76,68" fill="#e23a42"/>
-        </g>
-        <polygon points="50,24 37,46 43,46" fill="#fff" opacity="0.18"/>
-        <text class="die20__num" x="50" y="57" text-anchor="middle" dominant-baseline="middle">20</text>
-      </svg>
+  <!-- Dice thrower: i dadi 3D (disegnati da assets/js/dice.js) e il pannello dei tiri -->
+  <div class="dice" aria-hidden="true">
+    <canvas class="dice__canvas"></canvas>
+  </div>
+  <div class="dice-hud" data-solid>
+    <button class="dice-hud__set" id="dice-set" type="button" aria-expanded="false" aria-controls="dice-panel" title="Scegli i dadi">d20</button>
+    <output class="dice-hud__value" id="dice-value" aria-live="polite" title="Ultimo tiro">–</output>
+    <button class="dice-hud__btn" id="dice-roll" type="button">Lancia</button>
+    <button class="dice-hud__btn dice-hud__btn--ghost" id="dice-sensors" type="button" hidden aria-label="Attiva giroscopio">🧭</button>
+    <div class="dice-panel" id="dice-panel" data-solid hidden>
+      <p class="dice-panel__title">Dadi sul tavolo</p>
+        <div class="dice-panel__row" data-type="d4">
+          <span class="dice-panel__type dice-panel__type--d4">d4</span>
+          <button type="button" data-act="-" aria-label="Togli un d4">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d4">+</button>
+        </div>
+        <div class="dice-panel__row" data-type="d6">
+          <span class="dice-panel__type dice-panel__type--d6">d6</span>
+          <button type="button" data-act="-" aria-label="Togli un d6">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d6">+</button>
+        </div>
+        <div class="dice-panel__row" data-type="d8">
+          <span class="dice-panel__type dice-panel__type--d8">d8</span>
+          <button type="button" data-act="-" aria-label="Togli un d8">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d8">+</button>
+        </div>
+        <div class="dice-panel__row" data-type="d10">
+          <span class="dice-panel__type dice-panel__type--d10">d10</span>
+          <button type="button" data-act="-" aria-label="Togli un d10">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d10">+</button>
+        </div>
+        <div class="dice-panel__row" data-type="d12">
+          <span class="dice-panel__type dice-panel__type--d12">d12</span>
+          <button type="button" data-act="-" aria-label="Togli un d12">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d12">+</button>
+        </div>
+        <div class="dice-panel__row" data-type="d20">
+          <span class="dice-panel__type dice-panel__type--d20">d20</span>
+          <button type="button" data-act="-" aria-label="Togli un d20">−</button>
+          <output>0</output>
+          <button type="button" data-act="+" aria-label="Aggiungi un d20">+</button>
+        </div>
+      <p class="dice-panel__detail" id="dice-detail">Lancia per vedere la somma</p>
     </div>
   </div>
 
@@ -87,19 +116,12 @@
           <a class="btn" href="#calendario">📅 Prossimi eventi</a>
           <a class="btn btn--ghost" href="#associazione">Scopri il club</a>
         </div>
-        <p class="hero__hint reveal">🎲 Scorri e lancia il d20</p>
+        <p class="hero__hint reveal">🎲 Scorri, trascina o scuoti per lanciare i dadi</p>
       </div>
       <a class="hero__scroll" href="#associazione" aria-label="Scorri giù"><span></span></a>
     </section>
 
-    <div class="baffle" data-dir="ltr" aria-hidden="true">
-      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
-        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
-        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
-      </svg>
+    <div class="baffle" data-dir="ltr" aria-hidden="true"><svg></svg>
     </div>
 
     <!-- ASSOCIAZIONE -->
@@ -162,14 +184,7 @@
       </div>
     </section>
 
-    <div class="baffle" data-dir="rtl" aria-hidden="true">
-      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
-        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
-        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
-      </svg>
+    <div class="baffle" data-dir="rtl" aria-hidden="true"><svg></svg>
     </div>
 
     <!-- PROSSIMI EVENTI (Google Calendar) -->
@@ -190,14 +205,7 @@
       </div>
     </section>
 
-    <div class="baffle" data-dir="ltr" aria-hidden="true">
-      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
-        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
-        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
-      </svg>
+    <div class="baffle" data-dir="ltr" aria-hidden="true"><svg></svg>
     </div>
 
     <!-- EVENTI PASSATI -->
@@ -318,14 +326,7 @@
       </div>
     </section>
 
-    <div class="baffle" data-dir="rtl" aria-hidden="true">
-      <svg viewBox="0 0 1000 100" preserveAspectRatio="none">
-        <polygon points="0,6 880,62.3 880,88.3 0,32" fill="url(#plank)"/>
-        <polyline points="0,15 880,71.3" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,23 880,79.3" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,6 880,62.3 880,88.3" fill="none" stroke="#fae003" stroke-width="2.5" vector-effect="non-scaling-stroke"/>
-        <polyline points="0,32 880,88.3" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3" vector-effect="non-scaling-stroke"/>
-      </svg>
+    <div class="baffle" data-dir="rtl" aria-hidden="true"><svg></svg>
     </div>
 
     <!-- CONTATTI -->
@@ -352,11 +353,6 @@
   </main>
 
   <footer class="footer">
-    <div class="tray" aria-hidden="true">
-      <div class="tray__felt">
-        <p class="tray__msg">20 naturale! Ci vediamo al tavolo 🐉</p>
-      </div>
-    </div>
     <div class="container footer__inner">
       <div class="footer__brand">
         <img src="assets/img/logo.jpg" alt="" width="56" height="56">
@@ -385,7 +381,9 @@
     <img alt="">
   </div>
 
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="assets/js/config.js?v=1"></script>
-  <script src="assets/js/main.js?v=2"></script>
+  <script src="assets/js/main.js?v=4"></script>
+  <script src="assets/js/dice.js?v=3"></script>
 </body>
 </html>

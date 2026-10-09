@@ -69,199 +69,36 @@ document.addEventListener("keydown", (e) => {
 document.getElementById("year").textContent = new Date().getFullYear();
 
 // ---------------------------------------------------------------------------
-// Dice tower: il d20 cade lungo la pagina, rotola sulle rampe e atterra nel vassoio.
-//
-// Lo scroll stabilisce *dove* il dado dovrebbe essere; il dado ci arriva muovendosi
-// lungo il percorso con una piccola fisica (molla + velocità massima), così non
-// "schizza" sulle rampe ma rotola a velocità regolare, rallentando quando arriva.
+// Rampe della torre: disegnate in pixel reali, così sono ben inclinate e con
+// spessore costante. Il bordo superiore (el.baffleEdge) lo usa dice.js.
 // ---------------------------------------------------------------------------
 (() => {
-  const die = document.querySelector(".die20");
-  const felt = document.querySelector(".tray__felt");
-  if (!die || !felt) return;
-  const squash = die.querySelector(".die20__squash");
-  const body = die.querySelector(".die20__body");
-  const num = die.querySelector(".die20__num");
-  const still = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  // Faccia mostrata dopo ogni ribaltamento (dipende dall'angolo, quindi tornando su è la stessa)
-  const ROLLS = [7, 13, 4, 17, 9, 2, 15, 11, 6, 19, 3, 12, 8, 16, 5, 18, 1, 14, 10];
-  const STEP = 60; // un d20 visto di profilo è un esagono: si ribalta di 60° alla volta
-  const SPIN = 0.3; // gradi per pixel mentre cade
-
-  let segs = [];
-  let total = 0;
-  let startY = 0;
-  let endY = 0;
-  let size = 0;
-  let vw = 0;
-
-  // Ribaltamento "a scatti": resta quasi fermo su una faccia, poi si inclina sullo spigolo e cade sulla successiva
-  const tumble = (deg) => {
-    const q = deg / STEP;
-    const i = Math.floor(q);
-    const f = q - i;
-    const e = f * f * f * (f * (f * 6 - 15) + 10); // smootherstep
-    return (i + e) * STEP;
+  const draw = (el) => {
+    const svg = el.querySelector("svg");
+    const W = el.clientWidth;
+    const H = el.clientHeight;
+    if (!svg || !W || !H) return;
+    const ltr = el.dataset.dir !== "rtl";
+    const T = W < 560 ? 18 : 26; // spessore della tavola
+    const L = W * 0.86; // in fondo resta il buco da cui cadono i dadi
+    const y0 = 8;
+    const y1 = H - T - 8;
+    const X = (x) => (ltr ? x : W - x);
+    const pts = (list) => list.map(([x, y]) => `${X(x).toFixed(1)},${y.toFixed(1)}`).join(" ");
+    svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+    svg.innerHTML = `
+      <polygon points="${pts([[0, y0], [L, y1], [L, y1 + T], [0, y0 + T]])}" fill="url(#plank)"/>
+      <polyline points="${pts([[0, y0 + T * 0.35], [L, y1 + T * 0.35]])}" fill="none" stroke="rgba(0,0,0,.3)" stroke-width="1"/>
+      <polyline points="${pts([[0, y0 + T * 0.68], [L, y1 + T * 0.68]])}" fill="none" stroke="rgba(0,0,0,.25)" stroke-width="1"/>
+      <polyline points="${pts([[0, y0 + T], [L, y1 + T]])}" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3"/>
+      <polyline points="${pts([[0, y0], [L, y1], [L, y1 + T]])}" fill="none" stroke="#fae003" stroke-width="2.5" stroke-linejoin="round"/>`;
+    el.baffleEdge = [X(0), y0, X(L), y1];
   };
-
-  // Percorso: caduta → rotola sulla rampa → cade dal buco in fondo → rampa successiva … → vassoio
-  const build = () => {
-    size = die.offsetWidth;
-    const r = size / 2;
-    vw = document.documentElement.clientWidth;
-    const sy = window.scrollY;
-    const inset = Math.max(r + 14, (vw - 1180) / 4); // nel margine laterale quando c'è spazio
-    const baffles = [...document.querySelectorAll(".baffle")];
-    const pts = []; // ogni punto dice anche che tipo di tratto porta fino a lui
-
-    const firstLtr = (baffles[0]?.dataset.dir || "ltr") === "ltr";
-    startY = window.innerHeight * 0.5;
-    pts.push({ x: firstLtr ? inset : vw - inset, y: startY });
-
-    baffles.forEach((b) => {
-      const rc = b.getBoundingClientRect();
-      const ltr = b.dataset.dir !== "rtl";
-      // Bordo superiore della rampa: dal 6% al 70% dell'altezza (vedi SVG in index.html)
-      const edge = (x) => {
-        const f = (x - rc.left) / rc.width;
-        return rc.top + sy + rc.height * (0.06 + 0.64 * (ltr ? f : 1 - f));
-      };
-      // La rampa copre l'88% della larghezza: in fondo resta il buco da cui il dado cade
-      const xa = ltr ? inset : vw - inset;
-      const xEnd = ltr ? rc.left + rc.width * 0.88 - r * 0.4 : rc.left + rc.width * 0.12 + r * 0.4;
-      const xb = ltr ? vw - inset : inset;
-      const lift = r * 1.05;
-      pts.push({ x: xa, y: edge(xa) - lift, type: "fall" });
-      pts.push({ x: xEnd, y: edge(xEnd) - lift, type: "roll" });
-      pts.push({ x: xb, y: edge(xEnd) - lift + r * 1.4, type: "fall" });
-    });
-
-    // Atterraggio nel vassoio
-    const fr = felt.getBoundingClientRect();
-    const ty = fr.top + sy + fr.height * 0.4;
-    pts.push({ x: pts[pts.length - 1].x, y: ty - 40, type: "fall" });
-    pts.push({ x: fr.left + fr.width / 2, y: ty, type: "settle" });
-    endY = ty;
-
-    // La posizione obiettivo si ricava dalla Y: il percorso deve sempre scendere
-    for (let i = 1; i < pts.length; i++) if (pts[i].y <= pts[i - 1].y) pts[i].y = pts[i - 1].y + 1;
-
-    const rollK = 360 / (Math.PI * size); // gradi per pixel di rotolamento
-    segs = [];
-    let s0 = 0;
-    let ang = 0;
-    for (let i = 1; i < pts.length; i++) {
-      const a = pts[i - 1];
-      const b = pts[i];
-      const dx = b.x - a.x;
-      const len = Math.hypot(dx, b.y - a.y);
-      const type = b.type;
-      const k = type === "roll" ? rollK * Math.sign(dx) : type === "settle" ? rollK * Math.sign(dx || 1) : SPIN * (i % 2 ? 1 : -1);
-      const seg = { a, b, len, type, k, s0, ang0: ang };
-      segs.push(seg);
-      s0 += len;
-      ang += type === "roll" ? tumble(len * k) : len * k;
-    }
-    total = s0;
-    // Nel vassoio il dado si ferma dritto, con il 20 leggibile
-    const settle = segs[segs.length - 1];
-    settle.k = (Math.round(ang / 360) * 360 - settle.ang0) / settle.len;
-  };
-
-  // Da Y (obiettivo dello scroll) a distanza lungo il percorso
-  const yToS = (y) => {
-    for (const g of segs) {
-      if (y <= g.b.y) return g.s0 + g.len * Math.min(1, Math.max(0, (y - g.a.y) / (g.b.y - g.a.y)));
-    }
-    return total;
-  };
-  const segAt = (s) => {
-    for (let i = 0; i < segs.length; i++) if (s <= segs[i].s0 + segs[i].len) return i;
-    return segs.length - 1;
-  };
-  // Velocità massima per tipo di tratto (px/s): rotola piano, cade veloce
-  const maxSpeed = (type) =>
-    type === "roll" ? Math.min(750, Math.max(380, vw * 0.55)) : type === "settle" ? 420 : 1700;
-
-  let s = null; // posizione lungo il percorso
-  let v = 0; // velocità lungo il percorso
-  let last = performance.now();
-  let lastSeg = -1;
-  let hopT = Infinity;
-  let hopA = 0;
-  let shown = "";
-
-  const frame = (now) => {
-    const frameDt = Math.min(0.05, (now - last) / 1000);
-    let dt = frameDt;
-    last = now;
-    if (!segs.length) build();
-
-    const max = document.documentElement.scrollHeight - window.innerHeight;
-    const p = max > 0 ? Math.min(1, Math.max(0, window.scrollY / max)) : 0;
-    const sT = yToS(startY + p * (endY - startY));
-
-    if (s === null || still) {
-      s = sT;
-      v = 0;
-    } else {
-      // Molla smorzata verso l'obiettivo, con velocità limitata (sottopassi per stabilità)
-      const K = 26;
-      const C = 2 * Math.sqrt(K);
-      while (dt > 0) {
-        const h = Math.min(dt, 1 / 120);
-        dt -= h;
-        const diff = sT - s;
-        const g = segs[segAt(s)];
-        // Se il dado è rimasto molto indietro (salto con un link) può andare più veloce
-        const vmax = maxSpeed(g.type) * (1 + Math.max(0, Math.abs(diff) - 1500) / 1000);
-        v += (K * diff - C * v) * h;
-        v = Math.max(-vmax, Math.min(vmax, v));
-        s = Math.max(0, Math.min(total, s + v * h));
-      }
-    }
-
-    const i = segAt(s);
-    const g = segs[i];
-    const t = g.len ? (s - g.s0) / g.len : 0;
-    const x = g.a.x + (g.b.x - g.a.x) * t;
-    const y = g.a.y + (g.b.y - g.a.y) * t;
-    const rel = (s - g.s0) * g.k;
-    const angle = g.ang0 + (g.type === "roll" ? tumble(rel) : rel);
-
-    // Impatto con una rampa o col vassoio: schiacciamento + piccolo rimbalzo
-    if (i !== lastSeg && lastSeg !== -1 && !still && i > lastSeg && g.type !== "fall" && v > 150) {
-      hopT = 0;
-      hopA = Math.min(size * 0.35, v * 0.02);
-      squash.animate([{ transform: "scale(1.18, 0.82)" }, { transform: "scale(0.96, 1.04)" }, { transform: "scale(1)" }], {
-        duration: 320,
-        easing: "ease-out",
-      });
-    }
-    lastSeg = i;
-    hopT += frameDt;
-    const hop = hopT < 1 ? -hopA * Math.abs(Math.sin(hopT * 14)) * Math.exp(-hopT * 7) : 0;
-
-    const r = size / 2;
-    die.style.transform = `translate3d(${(x - r).toFixed(1)}px, ${(y - r + hop).toFixed(1)}px, 0)`;
-    body.style.transform = `rotate(${angle.toFixed(1)}deg)`;
-
-    const landed = s >= total - 1 && Math.abs(v) < 40;
-    const face = ROLLS[Math.abs(Math.round(angle / STEP)) % ROLLS.length];
-    const value = landed ? "20" : String(face);
-    if (value !== shown) num.textContent = shown = value;
-    die.classList.toggle("is-landed", landed);
-    felt.classList.toggle("is-crit", landed);
-
-    requestAnimationFrame(frame);
-  };
-
-  window.addEventListener("load", build);
-  window.addEventListener("resize", build);
-  // Ricalcola quando cambia l'altezza della pagina (immagini, calendario caricato…)
-  new ResizeObserver(build).observe(document.body);
-  requestAnimationFrame(frame);
+  const ro = new ResizeObserver((entries) => entries.forEach((e) => draw(e.target)));
+  document.querySelectorAll(".baffle").forEach((b) => {
+    draw(b);
+    ro.observe(b);
+  });
 })();
 
 // ---------------------------------------------------------------------------

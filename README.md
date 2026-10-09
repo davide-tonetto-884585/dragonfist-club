@@ -8,7 +8,8 @@ Sito statico (HTML/CSS/JS, nessuna build) dell'associazione ludica **DragonFist 
 index.html            pagina unica
 assets/css/style.css  stile (colori in :root)
 assets/js/config.js   ⚙️ impostazioni del calendario Google
-assets/js/main.js     menu mobile, dice tower (d20 che cade con lo scroll), calendario, lightbox
+assets/js/main.js     menu mobile, rampe, calendario, lightbox
+assets/js/dice.js     dadi 3D con gravità, collisioni, somma e giroscopio
 assets/img/           logo, foto e locandine (da Instagram @dragonfist.club)
 ```
 
@@ -25,13 +26,23 @@ assets/img/           logo, foto e locandine (da Instagram @dragonfist.club)
 3. Su GitHub: **Settings → Pages → Source: Deploy from a branch → `main` / `(root)`**.
 4. Dopo un minuto il sito è online su `https://<utente>.github.io/dragonfist-club/`.
 
-## La dice tower
+## I dadi (dice thrower)
 
-Il sito è l'interno di una torre per dadi: scorrendo, il d20 cade, rotola sulle rampe
-di legno (`<div class="baffle">` tra le sezioni in `index.html`) e atterra nel vassoio
-del footer facendo 20. Le rampe alternano direzione con `data-dir="ltr"` / `data-dir="rtl"`:
-se aggiungi una sezione, mettile tra una sezione e l'altra mantenendo l'alternanza.
-Il percorso del dado si ricalcola da solo.
+Dadi 3D (three.js, `assets/js/dice.js`) che cadono per gravità e rimbalzano sugli
+elementi del sito: scorrendo, titoli, schede, foto e rampe di legno li colpiscono.
+Sugli elementi molto larghi scivolano verso i bordi (e se non c'è spazio ci passano
+attraverso), così non restano incastrati.
+
+- Dal pannello in basso a destra (clic sull'etichetta tipo "d20 + 2d6") si aggiungono
+  e tolgono d4, d6, d8, d10, d12, d20 (max 10). La scelta resta salvata nel browser.
+- Quando tutti i dadi si fermano compare la somma, con il dettaglio nel pannello.
+- Si trascinano e si lanciano; da telefono la gravità segue il giroscopio
+  (su iPhone serve toccare 🧭 per dare il permesso) e scuotendo il telefono si lanciano.
+- Quali elementi sono ostacoli: lista `SOLID` in `dice.js`, oppure aggiungi
+  l'attributo `data-solid` a un elemento.
+- Le rampe (`<div class="baffle">`) sono disegnate da `main.js`; alterna `data-dir="ltr"` / `"rtl"`.
+  Inclinazione: altezza `.baffle` in `style.css`.
+- Colori e dimensioni dei dadi: `TYPES` e `BASE` in `dice.js`.
 
 ## Collegare Google Calendar (sezione "Prossimi eventi")
 

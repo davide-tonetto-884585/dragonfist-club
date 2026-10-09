@@ -299,7 +299,7 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 .cta__docs a { color: var(--muted); }
 .cta__docs a:hover { color: var(--gold); }
 
-/* ---------- Dice tower ---------- */
+/* ---------- Torre: muri e rampe ---------- */
 .tower-wall {
   position: fixed;
   top: 0;
@@ -319,45 +319,12 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 .baffle {
   position: relative;
   z-index: 2;
-  height: 150px;
-  margin: -30px 0;
+  height: clamp(150px, 30vw, 420px);
+  margin: calc(-1 * clamp(56px, 8vw, 104px)) 0;
   pointer-events: none;
   filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.55));
 }
-.baffle svg { display: block; width: 100%; height: 100%; }
-.baffle[data-dir="rtl"] svg { transform: scaleX(-1); }
-
-.die20 {
-  position: absolute;
-  top: 0;
-  left: 0;
-  z-index: 45;
-  width: clamp(48px, 5vw, 72px);
-  aspect-ratio: 1;
-  pointer-events: none;
-  will-change: transform;
-}
-.die20__squash { width: 100%; height: 100%; }
-.die20__body {
-  display: block;
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-  filter: drop-shadow(0 0 10px rgba(196, 38, 46, 0.55));
-  will-change: transform;
-}
-.die20__num { font-family: var(--font-display); font-weight: 900; font-size: 21px; fill: #fff7d6; }
-.die20__shadow {
-  position: absolute;
-  left: 12%;
-  right: 12%;
-  bottom: -8%;
-  height: 14%;
-  border-radius: 50%;
-  background: radial-gradient(closest-side, rgba(0, 0, 0, 0.6), transparent);
-}
-.die20.is-landed .die20__body { filter: drop-shadow(0 0 16px rgba(250, 224, 3, 0.9)) drop-shadow(0 0 32px rgba(250, 224, 3, 0.5)); }
-.die20.is-landed .die20__num { fill: var(--gold); }
+.baffle svg { display: block; width: 100%; height: 100%; overflow: visible; }
 
 .hero__hint {
   margin: 2.6rem 0 0;
@@ -368,40 +335,161 @@ h3 { font-size: 1.2rem; font-weight: 800; }
   color: var(--muted);
 }
 
-/* Vassoio dei dadi (footer) */
-.tray {
-  width: min(560px, 100% - 48px);
-  margin: 0 auto 44px;
-  padding: 14px;
-  border-radius: 30px;
-  background: linear-gradient(180deg, #7a4426, #3a1d10);
-  border: 2px solid rgba(250, 224, 3, 0.4);
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15), 0 24px 50px rgba(0, 0, 0, 0.6);
+/* ---------- Dice thrower ---------- */
+.dice {
+  position: fixed;
+  inset: 0;
+  z-index: 45;
+  pointer-events: none;
+  overflow: hidden;
 }
-.tray__felt {
-  display: flex;
-  align-items: flex-end;
-  justify-content: center;
-  height: 180px;
-  padding: 0 16px 16px;
-  border-radius: 20px;
-  background: radial-gradient(ellipse at 50% 40%, #8e1a20, #3d090d 75%);
-  box-shadow: inset 0 8px 22px rgba(0, 0, 0, 0.7);
-  transition: box-shadow 0.4s;
+.dice__canvas { position: absolute; inset: 0; width: 100%; height: 100%; }
+.dice__shadow {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0) 68%);
+  filter: blur(2px);
+  will-change: transform;
 }
-.tray__felt.is-crit { box-shadow: inset 0 8px 22px rgba(0, 0, 0, 0.7), 0 0 50px rgba(250, 224, 3, 0.35); }
-.tray__msg {
-  margin: 0;
+
+/* Numero che compare sopra il dado quando si ferma */
+.dice-pop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 46;
+  pointer-events: none;
   font-family: var(--font-display);
-  font-weight: 800;
-  font-size: 1.05rem;
-  text-align: center;
-  color: var(--gold);
+  font-weight: 900;
+  font-size: 1.2rem;
+  color: #fff3c4;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.8);
+  white-space: nowrap;
   opacity: 0;
-  transform: translateY(10px) scale(0.9);
-  transition: opacity 0.4s, transform 0.4s cubic-bezier(0.3, 1.6, 0.5, 1);
 }
-.tray__felt.is-crit .tray__msg { opacity: 1; transform: none; }
+.dice-pop.is-crit { color: var(--gold); text-shadow: 0 0 14px rgba(250, 224, 3, 0.8), 0 2px 10px rgba(0, 0, 0, 0.8); }
+.dice-pop.is-fumble { color: #ff6b6b; }
+.dice-pop.is-on { animation: dicepop 1.6s ease-out forwards; }
+@keyframes dicepop {
+  0% { opacity: 0; transform: var(--at) translateY(6px) scale(0.6); }
+  15% { opacity: 1; transform: var(--at) translateY(-6px) scale(1.15); }
+  30% { transform: var(--at) translateY(-10px) scale(1); }
+  80% { opacity: 1; }
+  100% { opacity: 0; transform: var(--at) translateY(-26px) scale(1); }
+}
+
+/* Pannello con l'ultimo tiro */
+.dice-hud {
+  position: fixed;
+  right: calc(var(--wall) + 12px);
+  bottom: calc(14px + env(safe-area-inset-bottom));
+  z-index: 47;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 6px 6px 14px;
+  border-radius: 999px;
+  background: rgba(27, 18, 20, 0.88);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+.dice-hud__set {
+  max-width: 9.5em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  padding: 0.35em 0.7em;
+  border: 1px dashed var(--border);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  font: 700 0.75rem var(--font-body);
+  letter-spacing: 0.06em;
+  cursor: pointer;
+}
+.dice-hud__set:hover, .dice-hud__set[aria-expanded="true"] { color: var(--gold); border-color: var(--gold); }
+.dice-hud__value.is-pop { animation: hudpop 0.45s ease-out; }
+@keyframes hudpop { 0% { transform: scale(0.6); } 60% { transform: scale(1.25); } 100% { transform: scale(1); } }
+
+/* Pannello per scegliere i dadi */
+.dice-panel {
+  position: absolute;
+  right: 0;
+  bottom: calc(100% + 10px);
+  width: 220px;
+  padding: 14px;
+  border-radius: 16px;
+  background: rgba(27, 18, 20, 0.96);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+}
+.dice-panel__title {
+  margin: 0 0 8px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--gold);
+}
+.dice-panel__row { display: grid; grid-template-columns: 1fr 30px 2ch 30px; align-items: center; gap: 8px; padding: 3px 0; }
+.dice-panel__type { font-family: var(--font-display); font-weight: 800; }
+.dice-panel__type::before {
+  content: "";
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  margin-right: 8px;
+  border-radius: 3px;
+  background: var(--c);
+  box-shadow: 0 0 0 1px rgba(250, 224, 3, 0.6);
+}
+.dice-panel__type--d4 { --c: #4fae6c; }
+.dice-panel__type--d6 { --c: #3f7bd0; }
+.dice-panel__type--d8 { --c: #8a5cc9; }
+.dice-panel__type--d10 { --c: #2ea3a3; }
+.dice-panel__type--d12 { --c: #e08a3c; }
+.dice-panel__type--d20 { --c: #d4323a; }
+.dice-panel__row output { text-align: center; font-variant-numeric: tabular-nums; font-weight: 700; }
+.dice-panel__row button {
+  width: 30px;
+  height: 30px;
+  border: 1px solid var(--border);
+  border-radius: 50%;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 1.1rem;
+  line-height: 1;
+  cursor: pointer;
+}
+.dice-panel__row button:hover:not(:disabled) { border-color: var(--gold); color: var(--gold); }
+.dice-panel__row button:disabled { opacity: 0.35; cursor: default; }
+.dice-panel__detail { margin: 10px 0 0; font-size: 0.8rem; color: var(--muted); line-height: 1.4; }
+.dice-hud__value {
+  min-width: 2ch;
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: 1.3rem;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+.dice-hud__value.is-crit { color: var(--gold); }
+.dice-hud__value.is-fumble { color: #ff6b6b; }
+.dice-hud__btn {
+  padding: 0.5em 1em;
+  border: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, var(--red), var(--red-deep));
+  color: #fff;
+  font: 700 0.85rem var(--font-body);
+  cursor: pointer;
+}
+.dice-hud__btn--ghost { padding: 0.45em 0.7em; background: transparent; border: 1px solid var(--border); }
+.dice-hud__btn--ghost.is-on { border-color: var(--gold); }
+.dice-hud__btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
 /* ---------- Calendar ---------- */
 .calendar { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
@@ -641,8 +729,6 @@ main { overflow-x: clip; }
   .info-grid { grid-template-columns: 1fr; }
   .calendar { grid-template-columns: 1fr; }
   :root { --wall: 8px; }
-  .baffle { height: 100px; margin: -20px 0; }
-  .die20 { width: 40px; }
   .hero__logo { width: 120px; height: 120px; }
   .polaroid--tilt-r { width: 88%; }
   .polaroid--tilt-l { display: none; }
