@@ -13,7 +13,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/style.css?v=6">
+  <link rel="stylesheet" href="assets/css/style.css?v=7">
 </head>
 <body>
   <div class="embers" aria-hidden="true"></div>
@@ -226,7 +226,7 @@
               <time>4 Ottobre 2026 · Castelfranco Veneto</time>
               <h3>Castello di Giochi</h3>
               <p>Abbiamo portato giochi di ruolo e giochi da tavolo al Castello di Giochi, accanto agli amici di
-                Antro delle Chimere. Nonché draftata Magic vinta dal nostro <strong>Oz</strong>! 🏆🃏</p>
+                Antro delle Chimere, Manacafe e Ombra Talis. Nonché draftata Magic vinta dal nostro <strong>Oz</strong>! 🏆🃏</p>
             </div>
           </article>
 
@@ -350,6 +350,14 @@
         </p>
       </div>
     </section>
+
+    <!-- Vassoio dei dadi: le rampe a imbuto ci fanno confluire i dadi (geometria in main.js, fisica in dice.js) -->
+    <div class="tray-zone" aria-hidden="true">
+      <svg class="tray-zone__funnel"></svg>
+      <div class="tray">
+        <div class="tray__felt"><span class="tray__total" id="tray-total"></span></div>
+      </div>
+    </div>
   </main>
 
   <footer class="footer">
@@ -383,7 +391,7 @@
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
   <script src="assets/js/config.js?v=1"></script>
-  <script src="assets/js/main.js?v=4"></script>
-  <script src="assets/js/dice.js?v=4"></script>
+  <script src="assets/js/main.js?v=5"></script>
+  <script src="assets/js/dice.js?v=9"></script>
 </body>
 </html>

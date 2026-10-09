@@ -2,7 +2,8 @@
 // Dice thrower: dadi 3D che cadono per gravità e rimbalzano sugli elementi del sito.
 //
 // - Vivono nel riquadro dello schermo: scrollando, titoli, schede, foto e rampe si
-//   muovono e li colpiscono (le foto no). Sugli elementi larghi scivolano verso i bordi.
+//   muovono e li colpiscono (le foto no).
+//   Sugli elementi larghi scivolano verso i bordi. In fondo un imbuto li porta nel vassoio.
 // - Si possono aggiungere/togliere d4, d6, d8, d10, d12, d20 (pannello in basso a sinistra).
 // - Quando tutti si fermano, mostra i singoli valori e la somma.
 // - Da telefono la gravità segue il giroscopio; scuotendo il telefono si lanciano.
@@ -344,6 +345,9 @@
   ].join(",");
   let solids = [];
   let baffles = [];
+  const trayZone = document.querySelector(".tray-zone");
+  const trayEl = trayZone && trayZone.querySelector(".tray");
+  const trayTotal = document.getElementById("tray-total");
   const collect = () => {
     solids = [...document.querySelectorAll(SOLID)];
     baffles = [...document.querySelectorAll(".baffle")];
@@ -377,6 +381,18 @@
       if (r.bottom < -80 || r.top > H + 80 || !el.baffleEdge) continue;
       const [x0, y0, x1, y1] = el.baffleEdge; // bordo superiore della rampa, calcolato in main.js
       obstacles.push({ el, seg: [r.left + x0, r.top + y0, r.left + x1, r.top + y1] });
+    }
+    // Vassoio: imbuto, pareti e fondo (geometria calcolata in main.js)
+    if (trayZone && trayZone.trayGeom) {
+      const z = trayZone.getBoundingClientRect();
+      if (z.bottom > -80 && z.top < H + 80) {
+        const { funnels, felt: f } = trayZone.trayGeom;
+        const at = (x, y) => [z.left + x, z.top + y];
+        for (const [x0, y0, x1, y1] of funnels) obstacles.push({ el: null, seg: [...at(x0, y0), ...at(x1, y1)] });
+        obstacles.push({ el: trayEl, seg: [...at(f.l, f.t), ...at(f.l, f.b)] });
+        obstacles.push({ el: trayEl, seg: [...at(f.r, f.t), ...at(f.r, f.b)] });
+        obstacles.push({ el: trayEl, seg: [...at(f.l, f.b), ...at(f.r, f.b)] });
+      }
     }
   };
 
@@ -467,7 +483,22 @@
     const [ax, ay, bx, by] = o.seg;
     const ex = bx - ax;
     const ey = by - ay;
-    const t = Math.max(0, Math.min(1, ((d.x - ax) * ex + (d.y - ay) * ey) / (ex * ex + ey * ey)));
+    const tRaw = ((d.x - ax) * ex + (d.y - ay) * ey) / (ex * ex + ey * ey);
+    // Rampe e fondo del vassoio sono "pavimenti": se scorrendo salgono più del dado in un
+    // fotogramma e lo scavalcano, lo raccolgono da sotto invece di lasciarlo passare
+    if (Math.abs(ex) > 1 && tRaw > 0 && tRaw < 1) {
+      const l = Math.hypot(ex, ey);
+      let ux = ey / l;
+      let uy = -ex / l;
+      if (uy > 0) (ux = -ux), (uy = -uy); // normale verso l'alto
+      const sd = (d.x - ax) * ux + (d.y - ay) * uy; // distanza dal bordo (positiva = sopra)
+      const sweep = Math.max(0, -ovy) * frameDt + 2;
+      if (sd < d.R && sd > -(d.R + sweep)) {
+        resolve(d, ux, uy, d.R - sd, o.el, 0, ovy, dt);
+        return;
+      }
+    }
+    const t = Math.max(0, Math.min(1, tRaw));
     const dx = d.x - (ax + ex * t);
     const dy = d.y - (ay + ey * t);
     const dist = Math.hypot(dx, dy);
@@ -475,8 +506,16 @@
     resolve(d, dx / dist, dy / dist, d.R - dist, o.el, 0, ovy, dt);
   };
 
+  // Un dado fermo "dorme": non si muove e fa da appoggio fisso, finché non lo colpiscono forte
+  const WAKE = 150;
+  const wake = (d) => {
+    d.settled = false;
+    d.settle = null;
+    d.still = 0;
+  };
+
   // Urti tra dadi (stessa massa)
-  const collideDice = () => {
+  const collideDice = (dt) => {
     for (let i = 0; i < dice.length; i++) {
       for (let j = i + 1; j < dice.length; j++) {
         const a = dice[i];
@@ -488,20 +527,36 @@
         if (dist >= min || dist < 1e-6) continue;
         const nx = dx / dist;
         const ny = dy / dist;
-        const pen = min - dist;
-        const wa = a.grab ? 0 : b.grab ? 1 : 0.5; // il dado preso in mano non si sposta
+        const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
+        if (a.settled && -vn > WAKE) wake(a);
+        if (b.settled && -vn > WAKE) wake(b);
+        // fermo o preso in mano = non si sposta
+        const sa = a.settled || !!a.grab;
+        const sb = b.settled || !!b.grab;
+        if (sa && sb) continue;
+        const wa = sa ? 0 : sb ? 1 : 0.5;
         const wb = 1 - wa;
+        const pen = min - dist;
         a.x -= nx * pen * wa;
         a.y -= ny * pen * wa;
         b.x += nx * pen * wb;
         b.y += ny * pen * wb;
-        const vn = (b.vx - a.vx) * nx + (b.vy - a.vy) * ny;
         if (vn >= 0) continue;
-        const jmp = -(1 + 0.5) * vn;
+        const e = -vn > 140 ? 0.5 : 0; // urti lenti: niente rimbalzo
+        const jmp = -(1 + e) * vn;
         a.vx -= jmp * nx * wa;
         a.vy -= jmp * ny * wa;
         b.vx += jmp * nx * wb;
         b.vy += jmp * ny * wb;
+        // attrito tra dadi
+        const tx = -ny;
+        const ty = nx;
+        const vt = (b.vx - a.vx) * tx + (b.vy - a.vy) * ty;
+        const f = vt * (1 - Math.exp(-4 * dt));
+        a.vx += f * tx * wa;
+        a.vy += f * ty * wa;
+        b.vx -= f * tx * wb;
+        b.vy -= f * ty * wb;
         if (-vn > 200) {
           kick(a, -vn);
           kick(b, -vn);
@@ -510,8 +565,32 @@
     }
   };
 
+  // Un dado fermo ha ancora qualcosa sotto? (se la pagina cambia sotto di lui, deve cadere)
+  const supported = (d) => {
+    if (d.y + d.R >= B.bottom - 3) return true;
+    const px = d.x;
+    const py = d.y + 4;
+    for (const o of obstacles) {
+      let qx;
+      let qy;
+      if (o.seg) {
+        const [ax, ay, bx, by] = o.seg;
+        const ex = bx - ax;
+        const ey = by - ay;
+        const t = Math.max(0, Math.min(1, ((px - ax) * ex + (py - ay) * ey) / (ex * ex + ey * ey)));
+        qx = ax + ex * t;
+        qy = ay + ey * t;
+      } else {
+        qx = Math.max(o.r.left, Math.min(px, o.r.right));
+        qy = Math.max(o.r.top, Math.min(py, o.r.bottom));
+      }
+      if (Math.hypot(px - qx, py - qy) < d.R) return true;
+    }
+    return dice.some((o) => o !== d && o.y > d.y && Math.hypot(px - o.x, py - o.y) < d.R + o.R);
+  };
+
   const stepDie = (d, dt, ovy) => {
-    if (d.grab) return;
+    if (d.grab || d.settled) return;
     const R = d.R;
     d.vx += G.x * GPX * dt;
     d.vy += G.y * GPX * dt;
@@ -609,6 +688,7 @@
     const text = `${parts.join(" · ")} = ${total}`;
     hudValue.title = text;
     if (detail) detail.textContent = text;
+    if (trayTotal) trayTotal.textContent = total;
   };
 
   /* ---------- Pannello: aggiungi / togli dadi ---------- */
@@ -866,25 +946,41 @@
   /* ---------- Ciclo ---------- */
   let prev = performance.now();
   let lastScroll = window.scrollY;
+  let scrollSpeed = 0;
+  let frameDt = 0.016;
+  let lastCheck = 0;
 
   const frame = (now) => {
     const dt = Math.min(0.033, (now - prev) / 1000);
     prev = now;
+    frameDt = dt;
 
     // Velocità dello scroll → velocità con cui gli elementi si muovono sullo schermo
     const sy = window.scrollY;
     const ovy = dt > 0 ? Math.max(-2500, Math.min(2500, -(sy - lastScroll) / dt)) : 0;
     lastScroll = sy;
+    // Si sta scorrendo? (velocità smussata: lo scroll arriva a scatti)
+    scrollSpeed = Math.max(Math.abs(ovy), scrollSpeed * Math.exp(-6 * dt));
+    if (scrollSpeed < 40) scrollSpeed = 0;
+    const ground = scrollSpeed === 0;
 
     // Tutti fermi, senza scroll e senza giroscopio: niente da calcolare
-    const idle = !dirty && !sensorsOn && ovy === 0 && dice.every((d) => d.settled && !d.grab);
+    let idle = !dirty && !sensorsOn && ground && ovy === 0 && dice.every((d) => d.settled && !d.grab);
+    if (idle && now - lastCheck > 500) {
+      lastCheck = now;
+      updateBounds();
+      readObstacles();
+      for (const d of dice) if (!supported(d)) (wake(d), (idle = false));
+    }
     if (!idle) {
       updateBounds();
       readObstacles();
+      // Mentre si scorre la pagina si muove sotto i dadi: quelli fermi si svegliano
+      if (!ground) for (const d of dice) if (d.settled) wake(d);
       const SUB = 4;
       for (let i = 0; i < SUB; i++) {
         for (const d of dice) stepDie(d, dt / SUB, ovy);
-        collideDice();
+        collideDice(dt / SUB);
       }
 
       for (const d of dice) {
@@ -898,6 +994,9 @@
             d.value = d.settle.face.value;
             d.settle = null;
             d.settled = true;
+            d.vx = d.vy = 0;
+            d.spin.set(0, 0, 0);
+            d.sleepG = { x: G.x, y: G.y };
             if (d.travel > d.R * 3 || d.thrown) {
               popDie(d);
               rolling = true;
@@ -906,15 +1005,14 @@
             d.thrown = false;
           }
         } else if (d.settled) {
-          if (speed > 160 || d.grab) {
-            d.settled = false;
-            d.still = 0;
-          }
+          // si sveglia se lo prendi, se cambia la gravità (giroscopio) o se non ha più appoggio
+          const tilted = sensorsOn && d.sleepG && Math.hypot(G.x - d.sleepG.x, G.y - d.sleepG.y) > 0.12;
+          if (d.grab || tilted || (ground && !sensorsOn && !supported(d))) wake(d);
         } else {
           rotate(d, dt);
-          if (!d.grab && speed < 24 && d.spin.length() < 1) {
+          if (!d.grab && speed < 40 && d.spin.length() < 1.5) {
             d.still += dt;
-            if (d.still > 0.3) beginSettle(d);
+            if (d.still > 0.25) beginSettle(d);
           } else d.still = 0;
         }
         d.mesh.position.set(d.x - W / 2, H / 2 - d.y, 0);

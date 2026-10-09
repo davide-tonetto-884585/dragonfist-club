@@ -102,6 +102,40 @@ document.getElementById("year").textContent = new Date().getFullYear();
 })();
 
 // ---------------------------------------------------------------------------
+// Vassoio in fondo alla pagina: due rampe a imbuto dai bordi dello schermo fino al
+// vassoio. La geometria (el.trayGeom, in px relativi alla zona) la usa dice.js.
+// ---------------------------------------------------------------------------
+(() => {
+  const zone = document.querySelector(".tray-zone");
+  if (!zone) return;
+  const svg = zone.querySelector(".tray-zone__funnel");
+  const tray = zone.querySelector(".tray");
+  const felt = zone.querySelector(".tray__felt");
+  const draw = () => {
+    const z = zone.getBoundingClientRect();
+    if (!z.width) return;
+    const t = tray.getBoundingClientRect();
+    const f = felt.getBoundingClientRect();
+    const T = z.width < 560 ? 16 : 22; // spessore delle tavole
+    const top = 10;
+    const fl = { l: f.left - z.left, t: t.top - z.top, r: f.right - z.left, b: f.bottom - z.top };
+    // bordo superiore delle due rampe: dal bordo dello schermo fino all'interno del vassoio
+    const left = [0, top, fl.l, fl.t];
+    const right = [z.width, top, fl.r, fl.t];
+    const plank = ([x0, y0, x1, y1]) =>
+      `<polygon points="${x0},${y0} ${x1},${y1} ${x1},${y1 + T} ${x0},${y0 + T}" fill="url(#plank)"/>
+       <polyline points="${x0},${y0 + T} ${x1},${y1 + T}" fill="none" stroke="rgba(0,0,0,.55)" stroke-width="3"/>
+       <polyline points="${x0},${y0} ${x1},${y1}" fill="none" stroke="#fae003" stroke-width="2.5"/>`;
+    svg.setAttribute("viewBox", `0 0 ${z.width} ${z.height}`);
+    svg.innerHTML = plank(left) + plank(right);
+    zone.trayGeom = { funnels: [left, right], felt: fl };
+  };
+  new ResizeObserver(draw).observe(zone);
+  addEventListener("load", draw);
+  draw();
+})();
+
+// ---------------------------------------------------------------------------
 // Prossimi eventi da Google Calendar
 // ---------------------------------------------------------------------------
 (() => {

@@ -491,6 +491,51 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 .dice-hud__btn--ghost.is-on { border-color: var(--gold); }
 .dice-hud__btn:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 
+/* Vassoio dei dadi in fondo alla pagina */
+.tray-zone {
+  position: relative;
+  z-index: 2;
+  height: clamp(240px, 26vw, 320px);
+  margin: calc(-1 * clamp(40px, 6vw, 80px)) 0 40px;
+  pointer-events: none;
+}
+.tray-zone__funnel {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  filter: drop-shadow(0 14px 14px rgba(0, 0, 0, 0.55));
+}
+.tray {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(640px, 100% - 2 * (var(--wall) + 16px));
+  height: clamp(140px, 16vw, 180px);
+  padding: 12px;
+  border-radius: 28px;
+  background: linear-gradient(180deg, #7a4426, #3a1d10);
+  border: 2px solid rgba(250, 224, 3, 0.4);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.15), 0 24px 50px rgba(0, 0, 0, 0.6);
+}
+.tray__felt {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  border-radius: 18px;
+  background: radial-gradient(ellipse at 50% 40%, #8e1a20, #3d090d 75%);
+  box-shadow: inset 0 8px 22px rgba(0, 0, 0, 0.7);
+}
+.tray__total {
+  font-family: var(--font-display);
+  font-weight: 900;
+  font-size: clamp(3rem, 8vw, 5rem);
+  color: rgba(250, 224, 3, 0.16);
+  user-select: none;
+}
+
 /* ---------- Calendar ---------- */
 .calendar { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 18px; }
 .calendar__status {
