@@ -383,7 +383,7 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 /* Pannello con l'ultimo tiro */
 .dice-hud {
   position: fixed;
-  right: calc(var(--wall) + 12px);
+  left: calc(var(--wall) + 12px);
   bottom: calc(14px + env(safe-area-inset-bottom));
   z-index: 47;
   display: flex;
@@ -418,7 +418,7 @@ h3 { font-size: 1.2rem; font-weight: 800; }
 /* Pannello per scegliere i dadi */
 .dice-panel {
   position: absolute;
-  right: 0;
+  left: 0;
   bottom: calc(100% + 10px);
   width: 220px;
   padding: 14px;

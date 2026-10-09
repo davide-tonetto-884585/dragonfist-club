@@ -33,7 +33,7 @@ elementi del sito: scorrendo, titoli, schede, foto e rampe di legno li colpiscon
 Sugli elementi molto larghi scivolano verso i bordi (e se non c'è spazio ci passano
 attraverso), così non restano incastrati.
 
-- Dal pannello in basso a destra (clic sull'etichetta tipo "d20 + 2d6") si aggiungono
+- Dal pannello in basso a sinistra (clic sull'etichetta tipo "d20 + 2d6") si aggiungono
   e tolgono d4, d6, d8, d10, d12, d20 (max 10). La scelta resta salvata nel browser.
 - Quando tutti i dadi si fermano compare la somma, con il dettaglio nel pannello.
 - Si trascinano e si lanciano; da telefono la gravità segue il giroscopio

@@ -3,7 +3,7 @@
 //
 // - Vivono nel riquadro dello schermo: scrollando, titoli, schede, foto e rampe si
 //   muovono e li colpiscono (le foto no). Sugli elementi larghi scivolano verso i bordi.
-// - Si possono aggiungere/togliere d4, d6, d8, d10, d12, d20 (pannello in basso a destra).
+// - Si possono aggiungere/togliere d4, d6, d8, d10, d12, d20 (pannello in basso a sinistra).
 // - Quando tutti si fermano, mostra i singoli valori e la somma.
 // - Da telefono la gravità segue il giroscopio; scuotendo il telefono si lanciano.
 // - Si trascinano e si lanciano col dito o col mouse.
